@@ -7,6 +7,7 @@ import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.service.BookService;
 import com.maslov.mvchomework.service.CommentService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +29,10 @@ public class BookController {
 
     @GetMapping
     @JsonView(Views.IdName.class)
-    public List<Book> list() {
-        return bookService.getAllBook();
+    public String list(Model model) {
+        List<Book> books = bookService.getAllBook();
+        model.addAttribute("books", books);
+        return "listOfBook";
     }
 
     @GetMapping("/getbook")

@@ -26,4 +26,8 @@ public class Author {
     @Column(name = "author_name", nullable = false, unique = true)
     private String name;
 
+    @Override
+    public String toString() {
+        return "Name='" + name;
+    }
 }
