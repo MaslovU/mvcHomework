@@ -3,13 +3,16 @@ package com.maslov.mvchomework.service.impl;
 import com.maslov.mvchomework.domain.Author;
 import com.maslov.mvchomework.domain.Book;
 import com.maslov.mvchomework.domain.Comment;
+import com.maslov.mvchomework.domain.Genre;
+import com.maslov.mvchomework.domain.YearOfPublish;
 import com.maslov.mvchomework.exception.NoBookException;
 import com.maslov.mvchomework.model.AuthorModel;
 import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.model.CommentModel;
 import com.maslov.mvchomework.repository.BookRepo;
+import com.maslov.mvchomework.repository.GenreRepo;
+import com.maslov.mvchomework.repository.YearRepo;
 import com.maslov.mvchomework.service.BookService;
-import com.maslov.mvchomework.service.BookServiceHelper;
 import com.maslov.mvchomework.service.ScannerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -30,12 +32,15 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepo bookRepo;
     private final ScannerHelper helper;
-    private final BookServiceHelper bookServiceHelper;
+    private final YearRepo yearRepo;
+    private final GenreRepo genreRepo;
 
-    public BookServiceImpl(BookRepo bookRepo, ScannerHelper helper, BookServiceHelper bookServiceHelper) {
+
+    public BookServiceImpl(BookRepo bookRepo, ScannerHelper helper, YearRepo yearRepo, GenreRepo genreRepo) {
         this.bookRepo = bookRepo;
         this.helper = helper;
-        this.bookServiceHelper = bookServiceHelper;
+        this.yearRepo = yearRepo;
+        this.genreRepo = genreRepo;
     }
 
     @Override
@@ -75,9 +80,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book createBook() {
-        Book bookFromUser = bookServiceHelper.getBookFromUser(0);
-        return bookRepo.save(bookFromUser);
+    public Book createBook(BookModel bookModel) {
+        Book book = new Book();
+        YearOfPublish savedYear = checkIfYearIsExist(bookModel);
+        Genre savedGenre = checkIfGenreIsExist(bookModel);
+        book.setName(book.getName());
+        book.setYear(savedYear);
+        book.setGenre(savedGenre);
+        return bookRepo.save(book);
     }
 
     @Override
@@ -88,9 +98,9 @@ public class BookServiceImpl implements BookService {
         long id = helper.getIdFromUser();
         helper.getEmptyString();
         if (id > 0) {
-            Book bookFromDB = bookRepo.findById(id).orElseThrow();
-            BeanUtils.copyProperties(bookServiceHelper.getBookFromUser(id), bookFromDB, "id");
-            bookRepo.save(bookFromDB);
+//            Book bookFromDB = bookRepo.findById(id).orElseThrow();
+//            BeanUtils.copyProperties(bookServiceHelper.getBookFromUser(id), bookFromDB, "id");
+//            bookRepo.save(bookFromDB);
         } else {
             System.out.println(GET_ALL);
         }
@@ -114,5 +124,21 @@ public class BookServiceImpl implements BookService {
         System.out.println(ENTER_ID);
         long id = helper.getIdFromUser();
         return bookRepo.findById(id).orElseThrow().getListOfComments();
+    }
+
+    private YearOfPublish checkIfYearIsExist(BookModel bookModel) {
+        YearOfPublish savedYear = yearRepo.findByDateOfPublish(bookModel.getYear());
+        if (savedYear.getDateOfPublish().isEmpty()) {
+            return yearRepo.save(YearOfPublish.builder().dateOfPublish(bookModel.getYear()).build());
+        }
+        return savedYear;
+    }
+
+    private Genre checkIfGenreIsExist(BookModel bookModel) {
+        Genre savedGenre = genreRepo.findByName(bookModel.getYear());
+        if (savedGenre.getName().isEmpty()) {
+            return genreRepo.save(Genre.builder().name(bookModel.getYear()).build());
+        }
+        return savedGenre;
     }
 }

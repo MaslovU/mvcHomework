@@ -12,7 +12,7 @@ public interface BookService {
 
     List<Book> getAllBook();
 
-    Book createBook();
+    Book createBook(BookModel book);
 
     void updateBook();
 
