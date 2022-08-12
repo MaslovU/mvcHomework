@@ -14,6 +14,7 @@ import com.maslov.mvchomework.repository.GenreRepo;
 import com.maslov.mvchomework.repository.YearRepo;
 import com.maslov.mvchomework.service.BookService;
 import com.maslov.mvchomework.service.ScannerHelper;
+import liquibase.pro.packaged.B;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -46,24 +47,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookModel getBook(long id) {
         try {
-            Optional<Book> bookOptional = bookRepo.findById(id);
-            List<CommentModel> comments = bookOptional.orElseThrow().getListOfComments()
-                    .stream()
-                    .map(Comment::getCommentForBook)
-                    .map(c -> CommentModel.builder().commentForBook(c).build())
-                    .collect(Collectors.toList());
-            List<AuthorModel> authors = bookOptional.orElseThrow().getAuthor()
-                    .stream()
-                    .map(Author::getName)
-                    .map(a -> AuthorModel.builder().name(a).build())
-                    .collect(Collectors.toList());
-            return BookModel.builder()
-                    .name(bookOptional.orElseThrow().getName())
-                    .authors(authors)
-                    .genre(bookOptional.orElseThrow().getGenre().getName())
-                    .year(bookOptional.orElseThrow().getYear().getDateOfPublish())
-                    .comments(comments)
-                    .build();
+            Book book = bookRepo.findById(id).orElseThrow();
+            return toBookModel(book);
         } catch (NullPointerException e) {
             throw new NoBookException("Book with this id is not exist");
         }
@@ -71,59 +56,41 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> getAllBook() {
-        List<Book> books = bookRepo.findAll();
-        for (Book book : books) {
-            System.out.println(book);
-        }
-        return books;
+        return bookRepo.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Comment> getComments(long id) {
+        return bookRepo.findById(id).orElseThrow().getListOfComments();
     }
 
     @Override
     @Transactional
-    public Book createBook(BookModel bookModel) {
+    public List<Book> createBook(BookModel bookModel) {
+        log.debug("Start creating book");
         Book book = new Book();
         YearOfPublish savedYear = checkIfYearIsExist(bookModel);
         Genre savedGenre = checkIfGenreIsExist(bookModel);
         book.setName(book.getName());
         book.setYear(savedYear);
         book.setGenre(savedGenre);
-        return bookRepo.save(book);
+        bookRepo.save(book);
+        return bookRepo.findAll();
     }
 
     @Override
     @Transactional
-    public void updateBook() {
-        log.debug("Start updating book. if you don't want to change the value, click Enter");
-        System.out.println(ENTER_ID);
-        long id = helper.getIdFromUser();
-        helper.getEmptyString();
-        if (id > 0) {
-//            Book bookFromDB = bookRepo.findById(id).orElseThrow();
-//            BeanUtils.copyProperties(bookServiceHelper.getBookFromUser(id), bookFromDB, "id");
-//            bookRepo.save(bookFromDB);
-        } else {
-            System.out.println(GET_ALL);
-        }
+    public BookModel updateBook(BookModel book, Book bookFromDB) {
+        log.debug("Start updating book");
+        BeanUtils.copyProperties(book, bookFromDB, "id");
+        return toBookModel(bookRepo.save(bookFromDB));
     }
 
     @Override
-    public void delBook() {
-        System.out.println(ENTER_ID);
-        long id = helper.getIdFromUser();
-        if (id > 0) {
-            bookRepo.deleteById(id);
-            log.info("Book deleted successfully");
-        } else {
-            System.out.println(GET_ALL);
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Comment> getComments() {
-        System.out.println(ENTER_ID);
-        long id = helper.getIdFromUser();
-        return bookRepo.findById(id).orElseThrow().getListOfComments();
+    public void delBook(long id) {
+        bookRepo.deleteById(id);
+        log.info("Book deleted successfully");
     }
 
     private YearOfPublish checkIfYearIsExist(BookModel bookModel) {
@@ -140,5 +107,25 @@ public class BookServiceImpl implements BookService {
             return genreRepo.save(Genre.builder().name(bookModel.getYear()).build());
         }
         return savedGenre;
+    }
+
+    private BookModel toBookModel(Book book) {
+        List<CommentModel> comments = book.getListOfComments()
+                .stream()
+                .map(Comment::getCommentForBook)
+                .map(c -> CommentModel.builder().commentForBook(c).build())
+                .collect(Collectors.toList());
+        List<AuthorModel> authors = book.getAuthor()
+                .stream()
+                .map(Author::getName)
+                .map(a -> AuthorModel.builder().name(a).build())
+                .collect(Collectors.toList());
+        return BookModel.builder()
+                .name(book.getName())
+                .authors(authors)
+                .genre(book.getGenre().getName())
+                .year(book.getYear().getDateOfPublish())
+                .comments(comments)
+                .build();
     }
 }

@@ -5,18 +5,17 @@ import com.maslov.mvchomework.domain.Comment;
 import com.maslov.mvchomework.model.BookModel;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BookService {
     BookModel getBook(long id);
 
     List<Book> getAllBook();
 
-    Book createBook(BookModel book);
+    List<Book> createBook(BookModel book);
 
-    void updateBook();
+    BookModel updateBook(BookModel book, Book boorFromDB);
 
-    void delBook();
+    void delBook(long id);
 
-    List<Comment> getComments();
+    List<Comment> getComments(long id);
 }
