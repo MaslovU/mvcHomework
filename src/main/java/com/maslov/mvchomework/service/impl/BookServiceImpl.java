@@ -32,14 +32,12 @@ public class BookServiceImpl implements BookService {
     private static final String GET_ALL = "Enter command 'getall' for search your book in list";
 
     private final BookRepo bookRepo;
-    private final ScannerHelper helper;
     private final YearRepo yearRepo;
     private final GenreRepo genreRepo;
 
 
-    public BookServiceImpl(BookRepo bookRepo, ScannerHelper helper, YearRepo yearRepo, GenreRepo genreRepo) {
+    public BookServiceImpl(BookRepo bookRepo, YearRepo yearRepo, GenreRepo genreRepo) {
         this.bookRepo = bookRepo;
-        this.helper = helper;
         this.yearRepo = yearRepo;
         this.genreRepo = genreRepo;
     }
@@ -81,9 +79,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookModel updateBook(BookModel book, Book bookFromDB) {
-        log.debug("Start updating book");
-        BeanUtils.copyProperties(book, bookFromDB, "id");
+    public BookModel updateBook(Book bookFromDB) {
+//        log.debug("Start updating book");
+        BeanUtils.copyProperties(bookFromDB, bookFromDB, "id");
         return toBookModel(bookRepo.save(bookFromDB));
     }
 
@@ -110,15 +108,15 @@ public class BookServiceImpl implements BookService {
     }
 
     private BookModel toBookModel(Book book) {
-        List<CommentModel> comments = book.getListOfComments()
+        List<String> comments = book.getListOfComments()
                 .stream()
                 .map(Comment::getCommentForBook)
-                .map(c -> CommentModel.builder().commentForBook(c).build())
+//                .map(c -> CommentModel.builder().commentForBook(c).build())
                 .collect(Collectors.toList());
-        List<AuthorModel> authors = book.getAuthor()
+        List<String> authors = book.getAuthor()
                 .stream()
                 .map(Author::getName)
-                .map(a -> AuthorModel.builder().name(a).build())
+//                .map(a -> AuthorModel.builder().name(a).build())
                 .collect(Collectors.toList());
         return BookModel.builder()
                 .name(book.getName())
@@ -127,5 +125,9 @@ public class BookServiceImpl implements BookService {
                 .year(book.getYear().getDateOfPublish())
                 .comments(comments)
                 .build();
+    }
+
+    private Book fromModelToBook(BookModel model) {
+        return new Book();
     }
 }

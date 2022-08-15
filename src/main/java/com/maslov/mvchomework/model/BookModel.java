@@ -1,7 +1,5 @@
 package com.maslov.mvchomework.model;
 
-import com.maslov.mvchomework.domain.Author;
-import com.maslov.mvchomework.domain.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +15,8 @@ import java.util.List;
 @Builder
 public class BookModel {
     private String name;
-    private List<AuthorModel> authors;
+    private List<String> authors;
     private String year;
     private String genre;
-    private List<CommentModel> comments;
-
+    private List<String> comments;
 }

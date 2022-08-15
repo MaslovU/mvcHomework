@@ -53,6 +53,11 @@ public class BookController {
         return "listOfComments";
     }
 
+    @GetMapping("/create")
+    public String create() {
+        return "createBook";
+    }
+
     @PostMapping("/create")
     public String createBook(@RequestBody BookModel bookModel,
                              Model model) {
@@ -61,14 +66,21 @@ public class BookController {
         return "listOfBook";
     }
 
-    @PutMapping("/update/{id}")
-    public String updateBook(
-            @PathVariable("id") Book bookFromDB,
-            @RequestBody BookModel book,
-            Model model) {
-        BookModel bookModel = bookService.updateBook(book, bookFromDB);
+    @GetMapping("/update")
+    public String updateBook(@RequestParam("bookId") long bookId,
+                             Model model) {
+        BookModel bookModel = bookService.getBook(bookId);
         model.addAttribute("book", bookModel);
-        return "oneBook";
+        model.addAttribute("id", bookId);
+        return "editBook";
+    }
+
+    @PostMapping("/update")
+    public String updateBook(
+            Book book) {
+        bookService.updateBook(book);
+//        model.addAttribute("book", bookModel);
+        return "redirect:/book";
     }
 
     @DeleteMapping("/delete/{id}")

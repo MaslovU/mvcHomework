@@ -13,7 +13,7 @@ public interface BookService {
 
     List<Book> createBook(BookModel book);
 
-    BookModel updateBook(BookModel book, Book boorFromDB);
+    BookModel updateBook(Book boorFromDB);
 
     void delBook(long id);
 
