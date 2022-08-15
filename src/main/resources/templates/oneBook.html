@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>List of all books</title>
+    <title>One book</title>
     <style type="text/css">
         body {
             padding: 50px;
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-<h3>Books:</h3>
+<h3>Book:</h3>
 
 <table class="books">
     <thead>
@@ -39,7 +39,6 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="book : ${books}">
         <td th:text="${book.id}">1</td>
         <td th:text="${book.name}">John Doe</td>
         <td th:text="${book.genre.getName()}">John Doe</td>
@@ -49,7 +48,6 @@
         <td>
             <a href="editBook.html" th:href="@{/update(id=${book.id})}">Edit</a>
         </td>
-    </tr>
     </tbody>
 </table>
 </body>
