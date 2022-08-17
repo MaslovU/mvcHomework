@@ -6,7 +6,6 @@ import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.service.BookService;
 import com.maslov.mvchomework.service.CommentService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,62 +30,33 @@ public class BookController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        List<Book> books = bookService.getAllBook();
-        model.addAttribute("books", books);
-        return "listOfBook";
+    public List<Book> list() {
+        return bookService.getAllBook();
     }
 
-    @GetMapping("/book/{id}")
-    public String getBook(@RequestParam("id") long id,
-                          Model model) {
-        BookModel book = bookService.getBook(id);
-        model.addAttribute("book", book);
-        return "oneBook";
+    @GetMapping("{id}")
+    public Book getBook(@RequestParam("id") long id) {
+        return bookService.getBook(id);
     }
 
-    @GetMapping("/comments/{bookId}")
-    public String getComments(@RequestParam("bookId") long bookId,
-                              Model model) {
-        List<Comment> comments = bookService.getComments(bookId);
-        model.addAttribute("comments", comments);
-        return "listOfComments";
+    @GetMapping("{bookId}")
+    public List<Comment> getComments(@RequestParam("bookId") long bookId) {
+        return bookService.getComments(bookId);
     }
 
-    @GetMapping("/create")
-    public String create() {
-        return "createBook";
+    @PostMapping
+    public Book createBook(@RequestBody BookModel book) {
+        return bookService.createBook(book);
     }
 
-    @PostMapping("/create")
-    public String createBook(@RequestBody BookModel bookModel,
-                             Model model) {
-        List<Book> books = bookService.createBook(bookModel);
-        model.addAttribute("books", books);
-        return "listOfBook";
+    @PutMapping("{id}")
+    public Book updateBook(@PathVariable("id") Book bookFromDB,
+                           @RequestBody BookModel bookModel) {
+        return bookService.updateBook(bookModel, bookFromDB);
     }
 
-    @GetMapping("/update")
-    public String updateBook(@RequestParam("bookId") long bookId,
-                             Model model) {
-        BookModel bookModel = bookService.getBook(bookId);
-        model.addAttribute("book", bookModel);
-        model.addAttribute("id", bookId);
-        return "editBook";
-    }
-
-    @PostMapping("/update")
-    public String updateBook(
-            Book book) {
-        bookService.updateBook(book);
-//        model.addAttribute("book", bookModel);
-        return "redirect:/book";
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public String delEmployee(@PathVariable Long id,
-                              Model model) {
+    @DeleteMapping("{id}")
+    public void delEmployee(@PathVariable Long id) {
         bookService.delBook(id);
-        return "delete";
     }
 }

@@ -6,22 +6,17 @@ import com.maslov.mvchomework.domain.Comment;
 import com.maslov.mvchomework.domain.Genre;
 import com.maslov.mvchomework.domain.YearOfPublish;
 import com.maslov.mvchomework.exception.NoBookException;
-import com.maslov.mvchomework.model.AuthorModel;
 import com.maslov.mvchomework.model.BookModel;
-import com.maslov.mvchomework.model.CommentModel;
 import com.maslov.mvchomework.repository.BookRepo;
 import com.maslov.mvchomework.repository.GenreRepo;
 import com.maslov.mvchomework.repository.YearRepo;
 import com.maslov.mvchomework.service.BookService;
-import com.maslov.mvchomework.service.ScannerHelper;
-import liquibase.pro.packaged.B;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -43,10 +38,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookModel getBook(long id) {
+    public Book getBook(long id) {
         try {
-            Book book = bookRepo.findById(id).orElseThrow();
-            return toBookModel(book);
+            return bookRepo.findById(id).orElseThrow(NullPointerException::new);
         } catch (NullPointerException e) {
             throw new NoBookException("Book with this id is not exist");
         }
@@ -65,7 +59,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public List<Book> createBook(BookModel bookModel) {
+    public Book createBook(BookModel bookModel) {
         log.debug("Start creating book");
         Book book = new Book();
         YearOfPublish savedYear = checkIfYearIsExist(bookModel);
@@ -73,16 +67,15 @@ public class BookServiceImpl implements BookService {
         book.setName(book.getName());
         book.setYear(savedYear);
         book.setGenre(savedGenre);
-        bookRepo.save(book);
-        return bookRepo.findAll();
+        return bookRepo.save(book);
     }
 
     @Override
     @Transactional
-    public BookModel updateBook(Book bookFromDB) {
-//        log.debug("Start updating book");
-        BeanUtils.copyProperties(bookFromDB, bookFromDB, "id");
-        return toBookModel(bookRepo.save(bookFromDB));
+    public Book updateBook(BookModel bookModel, Book bookFromDB) {
+        log.debug("Start updating book");
+        BeanUtils.copyProperties(bookModel, bookFromDB, "id");
+        return bookRepo.save(bookFromDB);
     }
 
     @Override
@@ -91,20 +84,20 @@ public class BookServiceImpl implements BookService {
         log.info("Book deleted successfully");
     }
 
-    private YearOfPublish checkIfYearIsExist(BookModel bookModel) {
-        YearOfPublish savedYear = yearRepo.findByDateOfPublish(bookModel.getYear());
-        if (savedYear.getDateOfPublish().isEmpty()) {
-            return yearRepo.save(YearOfPublish.builder().dateOfPublish(bookModel.getYear()).build());
+    private YearOfPublish checkIfYearIsExist(BookModel book) {
+        YearOfPublish yearOfPublish = yearRepo.findByDateOfPublish(book.getYear());
+        if (yearOfPublish.getDateOfPublish().isEmpty()) {
+            return yearRepo.save(YearOfPublish.builder().dateOfPublish(book.getYear()).build());
         }
-        return savedYear;
+        return yearOfPublish;
     }
 
-    private Genre checkIfGenreIsExist(BookModel bookModel) {
-        Genre savedGenre = genreRepo.findByName(bookModel.getYear());
-        if (savedGenre.getName().isEmpty()) {
-            return genreRepo.save(Genre.builder().name(bookModel.getYear()).build());
+    private Genre checkIfGenreIsExist(BookModel book) {
+        Genre genre = genreRepo.findByName(book.getGenre());
+        if (genre.getName().isEmpty()) {
+            return genreRepo.save(Genre.builder().name(book.getGenre()).build());
         }
-        return savedGenre;
+        return genre;
     }
 
     private BookModel toBookModel(Book book) {
@@ -113,7 +106,7 @@ public class BookServiceImpl implements BookService {
                 .map(Comment::getCommentForBook)
 //                .map(c -> CommentModel.builder().commentForBook(c).build())
                 .collect(Collectors.toList());
-        List<String> authors = book.getAuthor()
+        List<String> authors = book.getAuthors()
                 .stream()
                 .map(Author::getName)
 //                .map(a -> AuthorModel.builder().name(a).build())
@@ -125,9 +118,5 @@ public class BookServiceImpl implements BookService {
                 .year(book.getYear().getDateOfPublish())
                 .comments(comments)
                 .build();
-    }
-
-    private Book fromModelToBook(BookModel model) {
-        return new Book();
     }
 }

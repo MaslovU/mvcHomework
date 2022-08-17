@@ -50,7 +50,7 @@ public class Book {
     @ManyToMany(targetEntity = Author.class, cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "book_authors", joinColumns = {@JoinColumn(name = "book_id")},
             inverseJoinColumns = {@JoinColumn(name = "author_id")})
-    private List<Author> author;
+    private List<Author> authors;
 
     @Fetch(FetchMode.SUBSELECT)
     @OneToMany(targetEntity = Comment.class, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)

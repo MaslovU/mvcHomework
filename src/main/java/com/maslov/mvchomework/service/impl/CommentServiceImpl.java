@@ -5,7 +5,6 @@ import com.maslov.mvchomework.domain.Comment;
 import com.maslov.mvchomework.repository.BookRepo;
 import com.maslov.mvchomework.repository.CommentRepo;
 import com.maslov.mvchomework.service.CommentService;
-import com.maslov.mvchomework.service.ScannerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -17,12 +16,10 @@ import java.util.List;
 @Slf4j
 public class CommentServiceImpl implements CommentService {
 
-    private final ScannerHelper helper;
     private final BookRepo bookRepo;
     private final CommentRepo commentRepo;
 
-    public CommentServiceImpl(ScannerHelper helper, BookRepo bookRepo, CommentRepo commentRepo) {
-        this.helper = helper;
+    public CommentServiceImpl(BookRepo bookRepo, CommentRepo commentRepo) {
         this.bookRepo = bookRepo;
         this.commentRepo = commentRepo;
     }
@@ -31,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public List<Comment> createComment() {
         long idForBook = getIdForBook();
-        helper.getEmptyString();
+
         System.out.println("Enter your comment");
         Comment comm = new Comment(0, helper.getFromUser());
         Comment addedComment = commentRepo.save(comm);
@@ -42,7 +39,7 @@ public class CommentServiceImpl implements CommentService {
                 .name(bookFromDB.getName())
                 .genre(bookFromDB.getGenre())
                 .year(bookFromDB.getYear())
-                .author(bookFromDB.getAuthor())
+                .authors(bookFromDB.getAuthors())
                 .listOfComments(commentList)
                 .build();
         BeanUtils.copyProperties(book, bookFromDB, "id");
@@ -55,7 +52,6 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> updateComment() {
         long idForBook = getIdForBook();
         long idComment = getCommentId(idForBook);
-        helper.getEmptyString();
         Comment commentFromDB = commentRepo.findById(idComment).orElseThrow();
         System.out.println("Enter correct comment");
         String newComment = helper.getFromUser();

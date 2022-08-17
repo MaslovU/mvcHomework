@@ -7,13 +7,13 @@ import com.maslov.mvchomework.model.BookModel;
 import java.util.List;
 
 public interface BookService {
-    BookModel getBook(long id);
+    Book getBook(long id);
 
     List<Book> getAllBook();
 
-    List<Book> createBook(BookModel book);
+    Book createBook(BookModel bookModel);
 
-    BookModel updateBook(Book boorFromDB);
+    Book updateBook(BookModel bookModel, Book boorFromDB);
 
     void delBook(long id);
 
