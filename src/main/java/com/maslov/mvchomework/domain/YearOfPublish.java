@@ -25,5 +25,4 @@ public class YearOfPublish {
 
     @Column(name = "year", nullable = false, unique = true)
     private String dateOfPublish;
-
 }
