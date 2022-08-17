@@ -1,6 +1,5 @@
 package com.maslov.mvchomework.service.impl;
 
-import com.maslov.mvchomework.domain.Author;
 import com.maslov.mvchomework.domain.Book;
 import com.maslov.mvchomework.domain.Comment;
 import com.maslov.mvchomework.domain.Genre;
@@ -17,14 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class BookServiceImpl implements BookService {
-    private static final String ENTER_ID = "Enter ID for book or 0 is your dont now ID";
-    private static final String GET_ALL = "Enter command 'getall' for search your book in list";
 
     private final BookRepo bookRepo;
     private final YearRepo yearRepo;
@@ -98,25 +94,5 @@ public class BookServiceImpl implements BookService {
             return genreRepo.save(Genre.builder().name(book.getGenre()).build());
         }
         return genre;
-    }
-
-    private BookModel toBookModel(Book book) {
-        List<String> comments = book.getListOfComments()
-                .stream()
-                .map(Comment::getCommentForBook)
-//                .map(c -> CommentModel.builder().commentForBook(c).build())
-                .collect(Collectors.toList());
-        List<String> authors = book.getAuthors()
-                .stream()
-                .map(Author::getName)
-//                .map(a -> AuthorModel.builder().name(a).build())
-                .collect(Collectors.toList());
-        return BookModel.builder()
-                .name(book.getName())
-                .authors(authors)
-                .genre(book.getGenre().getName())
-                .year(book.getYear().getDateOfPublish())
-                .comments(comments)
-                .build();
     }
 }

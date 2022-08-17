@@ -47,13 +47,13 @@ public class Book {
     private YearOfPublish year;
 
     @Fetch(FetchMode.SUBSELECT)
-    @ManyToMany(targetEntity = Author.class, cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(targetEntity = Author.class, cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "book_authors", joinColumns = {@JoinColumn(name = "book_id")},
             inverseJoinColumns = {@JoinColumn(name = "author_id")})
     private List<Author> authors;
 
     @Fetch(FetchMode.SUBSELECT)
-    @OneToMany(targetEntity = Comment.class, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Comment.class, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     private List<Comment> listOfComments;
 }
