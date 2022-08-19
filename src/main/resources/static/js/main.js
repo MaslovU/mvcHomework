@@ -18,35 +18,55 @@ Vue.component('book-form', {
     //блок для сохранения данных в переменную
     data: function () {
         return {
-            text: '',
-            id: ''
+            id: '',
+            name: '',
+            authors: '',
+            genre: '',
+            year: '',
+            listOfComments: ''
         }
     },
     //наблюдатель за изменениями переменной
     watch: {
-      bookAttr: function(newVal, oldVal) {
-           this.text = newVal.text;
-           this.id = newVal.id;
+      bookAttr: function(newVal) {
+          this.id = newVal.id;
+          this.name = newVal.name;
+          this.genre = newVal.genre;
+          this.year = newVal.year;
+          this.authors = newVal.authors;
+          this.listOfComments = newVal.listOfComments;
       }
     },
     //контейнер для формочки
     template:
     '<div>' +
-           '<input type="text" placeholder="book name" v-model="text" />' +
+           '<input type="text" placeholder="book name" v-model="name"/>' +
+           '<input type="text" placeholder="genre name" v-model="genre" />' +
+           '<input type="text" placeholder="year" v-model="year" />' +
+           '<input type="text" placeholder="authors" v-model="authors" />' +
+           '<input type="text" placeholder="listOfComments" v-model="listOfComments" />' +
            '<input type="button" value="save" @click="save"/>' +
         '</div>',
-    //реализаця метода save из 16 строки
+    //реализаця метода save
     methods: {
         save: function () {
-            var book = { text: this.text };
+            var listOfComments = this.listOfComments.split(',');
+            var authors = this.authors.split(',')
+            //создание книги для создания или редактирования
+            var book = { name: this.name, genre: this.genre, year: this.year,
+                authors: authors, сomments: listOfComments };
 
             if (this.id) {
                 bookApi.update({id: this.id}, book).then(result => {
                     result.json().then(data => {
                         var index = getIndex(this.books, data.id);
                         this.books.splice(index, 1, data);
-                        this.text = ''
                         this.id = ''
+                        this.name = ''
+                        this.authors = ''
+                        this.genre = ''
+                        this.year = ''
+                        this.listOfComments = ''
                     })
                 })
             } else {
@@ -54,8 +74,11 @@ Vue.component('book-form', {
                     result.json()).then(data => {
                     this.books.push(data);
                     // очищение поля после ввода
-                    this.text = ''
-
+                    this.name = ''
+                    this.authors = ''
+                    this.genre = ''
+                    this.year = ''
+                    this.listOfComments = ''
                 })
             }
         }
@@ -69,6 +92,9 @@ Vue.component('book-row', {
         '{{ book.id }})</i> ' +
         '{{ book.name }} ' +
         '{{book.genre.name}} ' +
+        '{{book.year.dateOfPublish}} ' +
+        '{{book.authors}} ' +
+        '{{book.listOfComments}} ' +
         '<span style="position: absolute; right: 0">' +
             '<input type="button" value="edit" @click="edit" />' +
             '<input type="button" value="X" @click="del" />' +
@@ -97,10 +123,10 @@ Vue.component('books-list', {
       }
     },
     template:
-        '<div style="position: relative; width: 300px;">' +
-        '<book-form :books="books" :bookAttr="book"/>' +
-        '<book-row v-for="book in books" :key="book.id" :book="book" ' +
-        ':editMethod="editMethod" :books="books"/>' +
+        '<div style="position: relative; width: 1000px;">' +
+            '<book-form :books="books" :bookAttr="book"/>' +
+            '<book-row v-for="book in books" :key="book.id" :book="book" ' +
+            ':editMethod="editMethod" :books="books"/>' +
         '</div>',
     // инициализация коллекции данными, когда отображается список книг
     created: function () {
@@ -128,3 +154,6 @@ var app = new Vue({
         books: []
     }
 });
+
+//<!-- Динамическое присвоение значения переменной. -->
+// <blog-post v-bind:comment-ids="post.commentIds"></blog-post>

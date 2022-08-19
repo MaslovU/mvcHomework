@@ -112,7 +112,7 @@ public class BookServiceImpl implements BookService {
 
     private List<Comment> createComments(BookModel bookModel) {
         List<Comment> commentList = new ArrayList<>();
-        for (String b : bookModel.getComments()) {
+        for (String b : bookModel.getListOfComments()) {
             commentList.add(commentRepo.save(Comment.builder().commentForBook(b).build()));
         }
         return commentList;

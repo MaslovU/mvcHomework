@@ -18,5 +18,5 @@ public class BookModel {
     private List<String> authors;
     private String year;
     private String genre;
-    private List<String> comments;
+    private List<String> listOfComments;
 }
