@@ -15,7 +15,6 @@ import com.maslov.mvchomework.repository.YearRepo;
 import com.maslov.mvchomework.service.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,24 +67,14 @@ public class BookServiceImpl implements BookService {
     public Book createBook(BookModel bookModel) {
         log.debug("Start creating book");
         Book book = new Book();
-        YearOfPublish savedYear = checkIfYearIsExist(bookModel);
-        Genre savedGenre = checkIfGenreIsExist(bookModel);
-        List<Author> authors = createListAuthors(bookModel);
-        List<Comment> comments = createComments(bookModel);
-        book.setName(bookModel.getName());
-        book.setYear(savedYear);
-        book.setGenre(savedGenre);
-        book.setAuthors(authors);
-        book.setListOfComments(comments);
-        return bookRepo.save(book);
+        return makeFromModelToBook(bookModel, book);
     }
 
     @Override
     @Transactional
     public Book updateBook(BookModel bookModel, Book bookFromDB) {
         log.debug("Start updating book");
-        BeanUtils.copyProperties(bookModel, bookFromDB, "id");
-        return bookRepo.save(bookFromDB);
+        return makeFromModelToBook(bookModel, bookFromDB);
     }
 
     @Override
@@ -133,5 +122,18 @@ public class BookServiceImpl implements BookService {
         } catch (IndexOutOfBoundsException e) {
             return authorRepo.save(Author.builder().name(authorName).build());
         }
+    }
+
+    private Book makeFromModelToBook(BookModel bookModel, Book book) {
+        List<Author> authors = createListAuthors(bookModel);
+        List<Comment> comments = createComments(bookModel);
+        YearOfPublish savedYear = checkIfYearIsExist(bookModel);
+        Genre savedGenre = checkIfGenreIsExist(bookModel);
+        book.setName(bookModel.getName());
+        book.setGenre(savedGenre);
+        book.setYear(savedYear);
+        book.setAuthors(authors);
+        book.setListOfComments(comments);
+        return bookRepo.save(book);
     }
 }
