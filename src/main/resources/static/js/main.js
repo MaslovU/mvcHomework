@@ -46,39 +46,49 @@ Vue.component('book-form', {
            '<input type="text" placeholder="authors" v-model="authors" />' +
            '<input type="text" placeholder="listOfComments" v-model="listOfComments" />' +
            '<input type="button" value="save" @click="save"/>' +
+           '<input type="button" value="clear" @click="clear"/>' +
         '</div>',
     //реализаця метода save
     methods: {
+        clear: function () {
+                this.name = '';
+                this.authors = '';
+                this.genre = '';
+                this.year = '';
+                this.listOfComments = '';
+        },
         save: function () {
             var listOfComments = this.listOfComments.split(',');
             var authors = this.authors.split(',')
             //создание книги для создания или редактирования
             var book = { name: this.name, genre: this.genre, year: this.year,
-                authors: authors, сomments: listOfComments };
+                authors: authors, listOfComments: listOfComments };
 
             if (this.id) {
                 bookApi.update({id: this.id}, book).then(result => {
                     result.json().then(data => {
                         var index = getIndex(this.books, data.id);
                         this.books.splice(index, 1, data);
-                        this.id = ''
-                        this.name = ''
-                        this.authors = ''
-                        this.genre = ''
-                        this.year = ''
-                        this.listOfComments = ''
+                        this.id = '';
+                        this.name = '';
+                        this.authors = '';
+                        this.genre = '';
+                        this.year = '';
+                        this.listOfComments = '';
                     })
                 })
             } else {
-                bookApi.save({}, book).then(result =>
-                    result.json()).then(data => {
-                    this.books.push(data);
-                    // очищение поля после ввода
-                    this.name = ''
-                    this.authors = ''
-                    this.genre = ''
-                    this.year = ''
-                    this.listOfComments = ''
+                bookApi.save({}, book)
+                    .then(result =>
+                    result.json())
+                    .then(data => {
+                    this.books
+                        .push(data);
+                    this.name = '';
+                    this.authors = '';
+                    this.genre = '';
+                    this.year = '';
+                    this.listOfComments = '';
                 })
             }
         }
@@ -91,10 +101,10 @@ Vue.component('book-row', {
     template: '<div><i>(' +
         '{{ book.id }})</i> ' +
         '{{ book.name }} ' +
-        '{{book.genre.name}} ' +
-        '{{book.year.dateOfPublish}} ' +
-        '{{book.authors}} ' +
-        '{{book.listOfComments}} ' +
+        '{{ book.genre.name }} ' +
+        '{{ book.year.dateOfPublish }} ' +
+        '{{ book.authors }} ' +
+        '{{ book.listOfComments }} ' +
         '<span style="position: absolute; right: 0">' +
             '<input type="button" value="edit" @click="edit" />' +
             '<input type="button" value="X" @click="del" />' +
@@ -115,7 +125,6 @@ Vue.component('book-row', {
 });
 
 Vue.component('books-list', {
-    // параметры, которые мы ожидаем
     props: ['books'],
     data: function () {
       return {
@@ -138,7 +147,18 @@ Vue.component('books-list', {
     },
     methods: {
         editMethod: function (book) {
-            this.book = book;
+            var authors = [];
+            for (let o of book.authors) {
+                authors.push(o.name);
+            }
+            var listOfComments = [];
+            for (let c of book.listOfComments) {
+                listOfComments.push(c.commentForBook);
+            }
+            this.book = {
+                name: book.name, genre: book.genre.name, year: book.year.dateOfPublish,
+                authors: authors, listOfComments: listOfComments
+            };
         }
     }
 });
