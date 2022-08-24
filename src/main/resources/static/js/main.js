@@ -28,7 +28,7 @@ Vue.component('book-form', {
     },
     //наблюдатель за изменениями переменной
     watch: {
-      bookAttr: function(newVal) {
+      bookAttr: function(newVal, oldVal) {
           this.id = newVal.id;
           this.name = newVal.name;
           this.genre = newVal.genre;
@@ -45,7 +45,7 @@ Vue.component('book-form', {
            '<input type="text" placeholder="year" v-model="year" />' +
            '<input type="text" placeholder="authors" v-model="authors" />' +
            '<input type="text" placeholder="listOfComments" v-model="listOfComments" />' +
-           '<input type="button" value="save" @click="save"/>' +
+           '<input type="button" value="Save" @click="save"/>' +
            '<input type="button" value="clear" @click="clear"/>' +
         '</div>',
     //реализаця метода save
@@ -61,7 +61,7 @@ Vue.component('book-form', {
             var listOfComments = this.listOfComments.split(',');
             var authors = this.authors.split(',')
             //создание книги для создания или редактирования
-            var book = { name: this.name, genre: this.genre, year: this.year,
+            var book = { id: this.id, name: this.name, genre: this.genre, year: this.year,
                 authors: authors, listOfComments: listOfComments };
 
             if (this.id) {
@@ -79,16 +79,13 @@ Vue.component('book-form', {
                 })
             } else {
                 bookApi.save({}, book)
-                    .then(result =>
-                    result.json())
-                    .then(data => {
-                    this.books
-                        .push(data);
-                    this.name = '';
-                    this.authors = '';
-                    this.genre = '';
-                    this.year = '';
-                    this.listOfComments = '';
+                    .then(result => result.json()).then(data => {
+                        this.books.push(data);
+                        this.name = '';
+                        this.authors = '';
+                        this.genre = '';
+                        this.year = '';
+                        this.listOfComments = '';
                 })
             }
         }
@@ -156,7 +153,7 @@ Vue.component('books-list', {
                 listOfComments.push(c.commentForBook);
             }
             this.book = {
-                name: book.name, genre: book.genre.name, year: book.year.dateOfPublish,
+                id: book.id, name: book.name, genre: book.genre.name, year: book.year.dateOfPublish,
                 authors: authors, listOfComments: listOfComments
             };
         }
