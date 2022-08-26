@@ -31,7 +31,7 @@ public class BookController {
         return bookService.getAllBook();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("{onebook}")
     public Book getBook(@RequestParam("id") long id) {
         return bookService.getBook(id);
     }

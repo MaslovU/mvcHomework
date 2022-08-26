@@ -35,11 +35,12 @@ public class BookServiceImpl implements BookService {
     private final AuthorRepo authorRepo;
 
 
-//    public BookServiceImpl(BookRepo bookRepo, YearRepo yearRepo, GenreRepo genreRepo, CommentRepo commentRepo) {
+//    public BookServiceImpl(BookRepo bookRepo, YearRepo yearRepo, GenreRepo genreRepo, CommentRepo commentRepo, AuthorRepo authorRepo) {
 //        this.bookRepo = bookRepo;
 //        this.yearRepo = yearRepo;
 //        this.genreRepo = genreRepo;
 //        this.commentRepo = commentRepo;
+//        this.authorRepo = authorRepo;
 //    }
 
     @Override
