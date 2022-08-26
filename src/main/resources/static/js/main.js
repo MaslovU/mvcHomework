@@ -10,7 +10,7 @@ function getIndex(list, id) {
     return -1;
 }
 
-var bookApi = Vue.resource('/book{/id}')
+var bookApi = Vue.resource('/books{/id}')
 
 // создание кники
 Vue.component('book-form', {
