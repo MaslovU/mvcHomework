@@ -31,12 +31,12 @@ public class BookController {
         return bookService.getAllBook();
     }
 
-    @GetMapping("book/onebook")
+    @GetMapping("books/onebook")
     public Book getBook(@RequestParam("id") long id) {
         return bookService.getBook(id);
     }
 
-    @GetMapping("book/comment/id")
+    @GetMapping("books/comment/id")
     public List<Comment> getComments(@RequestParam("id") long bookId) {
         return bookService.getComments(bookId);
     }
@@ -52,7 +52,7 @@ public class BookController {
         return bookService.updateBook(bookModel, bookFromDB);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("books/{id}")
     public void delEmployee(@PathVariable Long id) {
         bookService.delBook(id);
     }
