@@ -34,15 +34,6 @@ public class BookServiceImpl implements BookService {
     private final CommentRepo commentRepo;
     private final AuthorRepo authorRepo;
 
-
-//    public BookServiceImpl(BookRepo bookRepo, YearRepo yearRepo, GenreRepo genreRepo, CommentRepo commentRepo, AuthorRepo authorRepo) {
-//        this.bookRepo = bookRepo;
-//        this.yearRepo = yearRepo;
-//        this.genreRepo = genreRepo;
-//        this.commentRepo = commentRepo;
-//        this.authorRepo = authorRepo;
-//    }
-
     @Override
     public Book getBook(long id) {
         try {
@@ -110,7 +101,7 @@ public class BookServiceImpl implements BookService {
 
     private List<Author> createListAuthors(BookModel bookModel) {
         List<Author> authorList = new ArrayList<>();
-        for (String a: bookModel.getAuthors()) {
+        for (String a : bookModel.getAuthors()) {
             Author author = checkIfAuthorIsExist(a);
             authorList.add(author);
         }

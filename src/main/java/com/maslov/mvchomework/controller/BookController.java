@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/book")
+@RequestMapping()
 public class BookController {
 
     private final BookService bookService;
@@ -26,27 +26,27 @@ public class BookController {
         this.bookService = service;
     }
 
-    @GetMapping
+    @GetMapping("books")
     public List<Book> list() {
         return bookService.getAllBook();
     }
 
-    @GetMapping("{onebook}")
+    @GetMapping("book/onebook")
     public Book getBook(@RequestParam("id") long id) {
         return bookService.getBook(id);
     }
 
-    @GetMapping("comment/id")
+    @GetMapping("book/comment/id")
     public List<Comment> getComments(@RequestParam("id") long bookId) {
         return bookService.getComments(bookId);
     }
 
-    @PostMapping
+    @PostMapping("books")
     public Book createBook(@RequestBody BookModel book) {
         return bookService.createBook(book);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("(books/{id}")
     public Book updateBook(@PathVariable("id") Book bookFromDB,
                            @RequestBody BookModel bookModel) {
         return bookService.updateBook(bookModel, bookFromDB);
