@@ -5,7 +5,7 @@ import com.maslov.mvchomework.domain.Book;
 import com.maslov.mvchomework.domain.Comment;
 import com.maslov.mvchomework.domain.Genre;
 import com.maslov.mvchomework.domain.YearOfPublish;
-import com.maslov.mvchomework.exception.NoBookException;
+import com.maslov.mvchomework.exception.MaslovBookException;
 import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.repository.AuthorRepo;
 import com.maslov.mvchomework.repository.BookRepo;
@@ -39,7 +39,7 @@ public class BookServiceImpl implements BookService {
         try {
             return bookRepo.findById(id).orElseThrow(NullPointerException::new);
         } catch (NullPointerException e) {
-            throw new NoBookException("Book with this id is not exist");
+            throw new MaslovBookException("Book with this id is not exist");
         }
     }
 
