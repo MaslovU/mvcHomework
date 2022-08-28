@@ -58,8 +58,8 @@ Vue.component('book-form', {
                 this.listOfComments = '';
         },
         save: function () {
-            var listOfComments = this.listOfComments.split(',');
-            var authors = this.authors.split(',');
+            var listOfComments = this.listOfComments.toString().split(',');
+            var authors = this.authors.toString().split(',');
 
             var book = { id: this.id, name: this.name, genre: this.genre, year: this.year,
                 authors: authors, listOfComments: listOfComments };
