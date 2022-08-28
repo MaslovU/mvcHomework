@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping()
+@RequestMapping(produces = "application/json")
 public class BookController {
 
     private final BookService bookService;
@@ -46,7 +46,7 @@ public class BookController {
         return bookService.createBook(book);
     }
 
-    @PutMapping("(books/{id}")
+    @PutMapping("books/{id}")
     public Book updateBook(@PathVariable("id") Book bookFromDB,
                            @RequestBody BookModel bookModel) {
         return bookService.updateBook(bookModel, bookFromDB);
