@@ -12,7 +12,7 @@ function getIndex(list, id) {
 
 var bookApi = Vue.resource('/books{/id}')
 
-// создание кники
+// создание книги
 Vue.component('book-form', {
     props: ['books', 'bookAttr'],
     //блок для сохранения данных в переменную
@@ -48,7 +48,7 @@ Vue.component('book-form', {
            '<input type="button" value="Save" @click="save"/>' +
            '<input type="button" value="clear" @click="clear"/>' +
         '</div>',
-    //реализаця метода save
+
     methods: {
         clear: function () {
                 this.name = '';
@@ -59,23 +59,25 @@ Vue.component('book-form', {
         },
         save: function () {
             var listOfComments = this.listOfComments.split(',');
-            var authors = this.authors.split(',')
-            //создание книги для создания или редактирования
+            var authors = this.authors.split(',');
+
             var book = { id: this.id, name: this.name, genre: this.genre, year: this.year,
                 authors: authors, listOfComments: listOfComments };
 
             if (this.id) {
-                bookApi.update({id: this.id}, book).then(result => {
-                    result.json().then(data => {
-                        var index = getIndex(this.books, data.id);
-                        this.books.splice(index, 1, data);
-                        this.id = '';
-                        this.name = '';
-                        this.authors = '';
-                        this.genre = '';
-                        this.year = '';
-                        this.listOfComments = '';
-                    })
+                bookApi.update({id: this.id}, book)
+                    .then(result => {
+                        result.json()
+                            .then(data => {
+                                var index = getIndex(this.books, data.id);
+                                this.books.splice(index, 1, data);
+                                this.id = '';
+                                this.name = '';
+                                this.authors = '';
+                                this.genre = '';
+                                this.year = '';
+                                this.listOfComments = '';
+                        })
                 })
             } else {
                 bookApi.save({}, book)
@@ -160,9 +162,8 @@ Vue.component('books-list', {
     }
 });
 
-// создаем экземпляр приложения
 var app = new Vue({
-    // #- css selector, id
+    // # - css selector, id
     el: '#app',
     // разметка
     template: '<books-list :books="books" />',
