@@ -7,12 +7,12 @@ import com.maslov.mvchomework.domain.Genre;
 import com.maslov.mvchomework.domain.YearOfPublish;
 import com.maslov.mvchomework.exception.MaslovBookException;
 import com.maslov.mvchomework.model.BookModel;
-import com.maslov.mvchomework.repository.AuthorRepo;
-import com.maslov.mvchomework.repository.BookRepo;
-import com.maslov.mvchomework.repository.CommentRepo;
-import com.maslov.mvchomework.repository.GenreRepo;
-import com.maslov.mvchomework.repository.YearRepo;
 import com.maslov.mvchomework.service.BookService;
+import com.maslov.mvchomework.service.data.provider.AuthorDataProvider;
+import com.maslov.mvchomework.service.data.provider.BookDataProvider;
+import com.maslov.mvchomework.service.data.provider.CommentDataProvider;
+import com.maslov.mvchomework.service.data.provider.GenreDataProvider;
+import com.maslov.mvchomework.service.data.provider.YearDataProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,16 +28,16 @@ import static java.util.Objects.isNull;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-    private final BookRepo bookRepo;
-    private final YearRepo yearRepo;
-    private final GenreRepo genreRepo;
-    private final CommentRepo commentRepo;
-    private final AuthorRepo authorRepo;
+    private final BookDataProvider bookDataProvider;
+    private final YearDataProvider yearDataProvider;
+    private final GenreDataProvider genreDataProvider;
+    private final CommentDataProvider commentDataProvider;
+    private final AuthorDataProvider authorDataProvider;
 
     @Override
     public Book getBook(long id) {
         try {
-            return bookRepo.findById(id).orElseThrow(NullPointerException::new);
+            return bookDataProvider.getBook(id);
         } catch (NullPointerException e) {
             throw new MaslovBookException("Book with this id is not exist");
         }
@@ -45,13 +45,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> getAllBook() {
-        return bookRepo.findAll();
+        return bookDataProvider.getAllBook();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Comment> getComments(long id) {
-        return bookRepo.findById(id).orElseThrow().getListOfComments();
+        return bookDataProvider.getBook(id).getListOfComments();
     }
 
     @Override
@@ -71,22 +71,22 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void delBook(long id) {
-        bookRepo.deleteById(id);
+        bookDataProvider.deleteById(id);
         log.info("Book deleted successfully");
     }
 
     private YearOfPublish checkIfYearIsExist(BookModel book) {
-        YearOfPublish yearOfPublish = yearRepo.findByDateOfPublish(book.getYear());
+        YearOfPublish yearOfPublish = yearDataProvider.findByDate(book.getYear());
         if (isNull(yearOfPublish)) {
-            return yearRepo.save(YearOfPublish.builder().dateOfPublish(book.getYear()).build());
+            return yearDataProvider.create(YearOfPublish.builder().dateOfPublish(book.getYear()).build());
         }
         return yearOfPublish;
     }
 
     private Genre checkIfGenreIsExist(BookModel book) {
-        Genre genre = genreRepo.findByName(book.getGenre());
+        Genre genre = genreDataProvider.findByName(book.getGenre());
         if (isNull(genre)) {
-            return genreRepo.save(Genre.builder().name(book.getGenre()).build());
+            return genreDataProvider.createGenre(Genre.builder().name(book.getGenre()).build());
         }
         return genre;
     }
@@ -94,7 +94,7 @@ public class BookServiceImpl implements BookService {
     private List<Comment> createComments(BookModel bookModel) {
         List<Comment> commentList = new ArrayList<>();
         for (String b : bookModel.getListOfComments()) {
-            commentList.add(commentRepo.save(Comment.builder().commentForBook(b).build()));
+            commentList.add(commentDataProvider.create(Comment.builder().commentForBook(b).build()));
         }
         return commentList;
     }
@@ -110,9 +110,9 @@ public class BookServiceImpl implements BookService {
 
     private Author checkIfAuthorIsExist(String authorName) {
         try {
-            return authorRepo.findByName(authorName).get(0);
+            return authorDataProvider.findByName(authorName).get(0);
         } catch (IndexOutOfBoundsException e) {
-            return authorRepo.save(Author.builder().name(authorName).build());
+            return authorDataProvider.create(Author.builder().name(authorName).build());
         }
     }
 
@@ -126,6 +126,6 @@ public class BookServiceImpl implements BookService {
         book.setYear(savedYear);
         book.setAuthors(authors);
         book.setListOfComments(comments);
-        return bookRepo.save(book);
+        return bookDataProvider.createBook(book);
     }
 }
