@@ -1,10 +1,6 @@
 package com.maslov.mvchomework.service.impl;
 
-import com.maslov.mvchomework.domain.Author;
 import com.maslov.mvchomework.domain.Book;
-import com.maslov.mvchomework.domain.Comment;
-import com.maslov.mvchomework.domain.Genre;
-import com.maslov.mvchomework.domain.YearOfPublish;
 import com.maslov.mvchomework.exception.MaslovBookException;
 import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.service.BookService;
@@ -16,7 +12,6 @@ import com.maslov.mvchomework.service.data.provider.YearDataProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +23,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
