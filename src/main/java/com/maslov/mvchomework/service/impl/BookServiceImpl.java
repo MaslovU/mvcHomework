@@ -56,8 +56,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book createBook(BookModel bookModel) {
+    public synchronized Book createBook(BookModel bookModel) {
         log.debug("Start creating book");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Book book = new Book();
         return makeFromModelToBook(bookModel, book);
     }
