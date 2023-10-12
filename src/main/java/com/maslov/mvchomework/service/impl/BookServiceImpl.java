@@ -33,6 +33,8 @@ public class BookServiceImpl implements BookService {
     private final GenreDataProvider genreDataProvider;
     private final CommentDataProvider commentDataProvider;
     private final AuthorDataProvider authorDataProvider;
+//    private final RedisConnectionFactory connectionFactory;
+//    private final RedisOperations<String, Book> redisOperations;
 
     @Override
     public Book getBook(long id) {
@@ -56,8 +58,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book createBook(BookModel bookModel) {
+    public synchronized Book createBook(BookModel bookModel) {
         log.debug("Start creating book");
+//        connectionFactory.getConnection().serverCommands().flushDb();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Book book = new Book();
         return makeFromModelToBook(bookModel, book);
     }
@@ -126,6 +134,15 @@ public class BookServiceImpl implements BookService {
         book.setYear(savedYear);
         book.setAuthors(authors);
         book.setListOfComments(comments);
+//        save to redis and get value
+//        redisOperations.opsForValue().set(book.getName(), book);
+//        var resRedis = redisOperations.opsForValue().get(book.getName());
+//        if (!isNull(resRedis)) {
+//            log.info("got book from redis: " + resRedis);
+//        }
         return bookDataProvider.createBook(book);
+//        var resBook = bookDataProvider.createBook(book);
+//        BookModel model = BookModel.builder().name(resBook.getName()).build();
+//        return model;
     }
 }
