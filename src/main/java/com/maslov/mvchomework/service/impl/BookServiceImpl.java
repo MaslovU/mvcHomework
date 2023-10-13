@@ -1,20 +1,14 @@
 package com.maslov.mvchomework.service.impl;
 
-import com.maslov.mvchomework.domain.Author;
-import com.maslov.mvchomework.domain.Book;
-import com.maslov.mvchomework.domain.Comment;
-import com.maslov.mvchomework.domain.Genre;
-import com.maslov.mvchomework.domain.YearOfPublish;
+import com.maslov.mvchomework.domain.*;
 import com.maslov.mvchomework.exception.MaslovBookException;
 import com.maslov.mvchomework.model.BookModel;
 import com.maslov.mvchomework.service.BookService;
-import com.maslov.mvchomework.service.data.provider.AuthorDataProvider;
-import com.maslov.mvchomework.service.data.provider.BookDataProvider;
-import com.maslov.mvchomework.service.data.provider.CommentDataProvider;
-import com.maslov.mvchomework.service.data.provider.GenreDataProvider;
-import com.maslov.mvchomework.service.data.provider.YearDataProvider;
+import com.maslov.mvchomework.service.data.provider.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,12 +27,19 @@ public class BookServiceImpl implements BookService {
     private final GenreDataProvider genreDataProvider;
     private final CommentDataProvider commentDataProvider;
     private final AuthorDataProvider authorDataProvider;
-//    private final RedisConnectionFactory connectionFactory;
-//    private final RedisOperations<String, Book> redisOperations;
+    private final RedisConnectionFactory connectionFactory;
+    private final RedisOperations<String, Book> redisOperations;
 
     @Override
     public Book getBook(long id) {
         try {
+//            Name "java" for example :)
+            var resRedis = redisOperations.opsForValue().get("java");
+            if (!isNull(resRedis)) {
+                log.info("got book from redis: " + resRedis);
+            } else {
+                log.info("has no value for java");
+            }
             return bookDataProvider.getBook(id);
         } catch (NullPointerException e) {
             throw new MaslovBookException("Book with this id is not exist");
@@ -60,7 +61,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public synchronized Book createBook(BookModel bookModel) {
         log.debug("Start creating book");
-//        connectionFactory.getConnection().serverCommands().flushDb();
+        connectionFactory.getConnection().serverCommands().flushDb();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -135,14 +136,7 @@ public class BookServiceImpl implements BookService {
         book.setAuthors(authors);
         book.setListOfComments(comments);
 //        save to redis and get value
-//        redisOperations.opsForValue().set(book.getName(), book);
-//        var resRedis = redisOperations.opsForValue().get(book.getName());
-//        if (!isNull(resRedis)) {
-//            log.info("got book from redis: " + resRedis);
-//        }
+        redisOperations.opsForValue().set(book.getName(), book);
         return bookDataProvider.createBook(book);
-//        var resBook = bookDataProvider.createBook(book);
-//        BookModel model = BookModel.builder().name(resBook.getName()).build();
-//        return model;
     }
 }
