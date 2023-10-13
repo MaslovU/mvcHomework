@@ -33,6 +33,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBook(long id) {
         try {
+//            Name "java" for example :)
+            var resRedis = redisOperations.opsForValue().get("java");
+            if (!isNull(resRedis)) {
+                log.info("got book from redis: " + resRedis);
+            } else {
+                log.info("has no value for java");
+            }
             return bookDataProvider.getBook(id);
         } catch (NullPointerException e) {
             throw new MaslovBookException("Book with this id is not exist");
@@ -130,10 +137,6 @@ public class BookServiceImpl implements BookService {
         book.setListOfComments(comments);
 //        save to redis and get value
         redisOperations.opsForValue().set(book.getName(), book);
-        var resRedis = redisOperations.opsForValue().get(book.getName());
-        if (!isNull(resRedis)) {
-            log.info("got book from redis: " + resRedis);
-        }
         return bookDataProvider.createBook(book);
     }
 }
